@@ -4,10 +4,6 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 
 export const DB_TOKEN = "TOROB_DB";
 
-// This DB "handle" is intentionally minimal — controllers just import the
-// Mongoose models directly from `./models`. We keep the token around so
-// anything that needs the live connection URI (health checks, tests) can
-// inject it easily.
 export type DatabaseHandle = {
   uri: string;
   connectionState: () => number;
@@ -56,7 +52,9 @@ export class DatabaseModule implements OnModuleInit, OnModuleDestroy {
   async onModuleDestroy() {
     try {
       await mongoose.disconnect();
-      const mem = (global as any).__TOROB_MONGO_MEM__ as MongoMemoryServer | undefined;
+      const mem = (global as any).__TOROB_MONGO_MEM__ as
+        | MongoMemoryServer
+        | undefined;
       if (mem) await mem.stop();
     } catch (err) {
       console.error("Error during Mongo shutdown:", err);
